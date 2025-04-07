@@ -1,8 +1,8 @@
 ﻿Imports System.Data.SqlClient
 
 Public Class Form1
-    'Private strCnn As String = "Server=10.17.182.12\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
-    Private strCnn As String = "Server=10.17.182.36\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
+    Private strCnn As String = "Server=10.17.182.12\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
+    'Private strCnn As String = "Server=10.17.182.36\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
     'Private strCnn As String = "Server=SHPLAPSIS01\SQLEXPRESS2012; Database=SEA; User ID=sa;Password=SHPadmin14%"
     Private cnn As New SqlConnection(strCnn)
     Private PN As String
@@ -63,6 +63,7 @@ Public Class Form1
 
         Catch ex As Exception
 
+            MessageBox.Show("Error al guardar el registro en la base de datos", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
 
         End Try
 
