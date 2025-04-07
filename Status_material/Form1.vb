@@ -1,24 +1,104 @@
 ﻿Imports System.Data.SqlClient
 
 Public Class Form1
-    Private strCnn As String = "Server=10.17.182.12\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
-    'Private strCnn As String = "Server=10.17.182.36\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
+    'Private strCnn As String = "Server=10.17.182.12\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
+    Private strCnn As String = "Server=10.17.182.36\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
     'Private strCnn As String = "Server=SHPLAPSIS01\SQLEXPRESS2012; Database=SEA; User ID=sa;Password=SHPadmin14%"
     Private cnn As New SqlConnection(strCnn)
+    Private PN As String
+
 
     Private Sub btnasignar_Click(sender As Object, e As EventArgs) Handles btnasignar.Click
 
+        If String.IsNullOrWhiteSpace(textboxUserInputMaterials.Text) Then
+
+            MessageBox.Show("Ingresa tu número de empleado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            textboxUserInputMaterials.Focus()
+            Exit Sub
+
+        ElseIf Not validaEmpleado(textboxUserInputMaterials.Text()) Then
+
+            MessageBox.Show("El número de empleado no es válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            textboxUserInputMaterials.Focus()
+            Exit Sub
+
+        Else
+
+            UpdateTag(lblTAG.Text, "NoAvailable")
+            RecordMovement("Salida")
+            UpdateUsuarioSalida(lblTAG.Text)
+
+        End If
 
 
 
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
-        UpdateTag(lblTAG.Text, "NoAvailable")
-        UpdateUsuarioSalida(lblTAG.Text)
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
+
     End Sub
 
 
-    Private Sub TxtNumEmpleado_KeyPress(sender As Object, e As KeyPressEventArgs) Handles TxtNumEmpleado.KeyPress
+    Private Sub RecordMovement(Movement As String)
+
+        Dim query = "
+                    DECLARE @USER NVARCHAR(255);
+                    SET @USER = (CASE 
+                                        WHEN (SELECT COUNT(*) FROM tblEmpleados WHERE EmployeeNumber = @EMPLOYEE) > 0 
+                                        THEN (SELECT ISNULL(FirstName, '') + ' ' + ISNULL(MiddleName, '') + ' ' + ISNULL(LastName, '') + ' ' + ISNULL(MaternalLastName, '')
+                                            FROM tblEmpleados WHERE EmployeeNumber = @EMPLOYEE) 
+                                        ELSE CONCAT('-', @EMPLOYEE)
+                                 END);
+                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @USER, @TYPEOFMOVEMENT, GETDATE());"
+
+        Try
+            cnn.Open()
+
+            Dim command As New SqlCommand(query, cnn)
+            command.Parameters.AddWithValue("@TAG", lblTAG.Text)
+            command.Parameters.AddWithValue("@PN", PN)
+            command.Parameters.AddWithValue("@TYPEOFMOVEMENT", Movement)
+            command.Parameters.AddWithValue("@EMPLOYEE", textboxUserInputMaterials.Text)
+            command.ExecuteNonQuery()
+
+
+
+
+        Catch ex As Exception
+
+
+        End Try
+
+        cnn.Close()
+
+    End Sub
+
+
+    Private Function validaEmpleado(EmployeeNumber As String) As Boolean
+        Dim query = "SELECT COUNT(*) AS EXISTE from tblEmpleados where EmployeeNumber = @EmployeeNumber"
+        Dim exists = False
+
+        Try
+            cnn.Open()
+            Dim command As New SqlCommand(query, cnn)
+            command.Parameters.AddWithValue("@EmployeeNumber", EmployeeNumber)
+            Dim result As Object = command.ExecuteScalar()
+
+            If result IsNot Nothing AndAlso Not IsDBNull(result) Then
+                If Convert.ToInt32(result) > 0 Then
+                    exists = True
+                End If
+            End If
+
+
+        Catch ex As Exception
+
+        End Try
+
+        cnn.Close()
+        Return exists
+    End Function
+
+
+
+    Private Sub TxtNumEmpleado_KeyPress(sender As Object, e As KeyPressEventArgs) Handles textboxUserInputMaterials.KeyPress
 
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(txttag.Text)
@@ -29,18 +109,34 @@ Public Class Form1
 
 
     Private Sub btnentrada_Click(sender As Object, e As EventArgs) Handles btnentrada.Click
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
-        UpdateTag(lblTAG.Text, "Available")
-        UpdateUsuarioEntrada(lblTAG.Text)
-        'MessageBox.Show("El Tag solo se puede regresar por la aplicacion", "", MessageBoxButtons.OK)
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
+        If String.IsNullOrWhiteSpace(textboxUserInputMaterials.Text) Then
+
+            MessageBox.Show("Ingresa tu número de empleado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            textboxUserInputMaterials.Focus()
+            Exit Sub
+
+        ElseIf Not validaEmpleado(textboxUserInputMaterials.Text()) Then
+
+            MessageBox.Show("El número de empleado no es válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            textboxUserInputMaterials.Focus()
+            Exit Sub
+
+        Else
+
+
+            UpdateTag(lblTAG.Text, "Available")
+            RecordMovement("Entrada")
+            UpdateUsuarioEntrada(lblTAG.Text)
+
+        End If
+
     End Sub
 
     Private Sub txttag_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txttag.KeyPress
         System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(txttag.Text)
-            TxtNumEmpleado.Focus()
+            textboxUserInputMaterials.Focus()
         End If
         System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
 
@@ -71,13 +167,14 @@ Public Class Form1
                 cnn.Close()
                 If TN.Rows.Count > 0 Then
                     lblTAG.Text = txttag.Text
-                    lblStatus.Text = "Status: " + TN.Rows(0).Item("Status").ToString
+                    lblStatus.Text = TN.Rows(0).Item("Status").ToString
                     lblPN.Text = "PN: " + TN.Rows(0).Item("PN").ToString
+                    PN = TN.Rows(0).Item("PN").ToString
                     lblBalance.Text = "Balance: " + CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1)) + "   " + TN.Rows(0).Item("Unit").ToString
-                    If TN.Rows(0).Item("Status").ToString = "Available" And TxtNumEmpleado.Text <> "" Then
+                    If TN.Rows(0).Item("Status").ToString = "Available" And textboxUserInputMaterials.Text <> "" Then
                         btnasignar.Enabled = True
                         btnentrada.Enabled = False
-                    ElseIf TN.Rows(0).Item("Status").ToString = "NoAvailable" And TxtNumEmpleado.Text <> "" Then
+                    ElseIf TN.Rows(0).Item("Status").ToString = "NoAvailable" And textboxUserInputMaterials.Text <> "" Then
                         btnasignar.Enabled = False
                         btnentrada.Enabled = True
                     End If
@@ -134,14 +231,14 @@ Public Class Form1
 
             Dim cmd = New SqlCommand(query, cnn)
             cmd.CommandType = CommandType.Text
-            cmd.Parameters.Add("@EmployeeNumber", SqlDbType.NVarChar).Value = TxtNumEmpleado.Text()
+            cmd.Parameters.Add("@EmployeeNumber", SqlDbType.NVarChar).Value = textboxUserInputMaterials.Text()
             cmd.Parameters.Add("@TAG", SqlDbType.NVarChar).Value = TAG
             cnn.Open()
             cmd.ExecuteNonQuery()
             cnn.Close()
             BuscarTag(txttag.Text)
             txttag.Text = ""
-            TxtNumEmpleado.Text = ""
+            textboxUserInputMaterials.Text = ""
             btnasignar.Enabled = False
             btnentrada.Enabled = False
 
@@ -172,14 +269,14 @@ Public Class Form1
 
             Dim cmd = New SqlCommand(query, cnn)
             cmd.CommandType = CommandType.Text
-            cmd.Parameters.Add("@EmployeeNumber", SqlDbType.NVarChar).Value = TxtNumEmpleado.Text()
+            cmd.Parameters.Add("@EmployeeNumber", SqlDbType.NVarChar).Value = textboxUserInputMaterials.Text()
             cmd.Parameters.Add("@TAG", SqlDbType.NVarChar).Value = TAG
             cnn.Open()
             cmd.ExecuteNonQuery()
             cnn.Close()
             BuscarTag(txttag.Text)
             txttag.Text = ""
-            TxtNumEmpleado.Text = ""
+            textboxUserInputMaterials.Text = ""
             btnasignar.Enabled = False
             btnentrada.Enabled = False
 
@@ -192,5 +289,16 @@ Public Class Form1
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         lblTAG.Text = ""
+    End Sub
+
+    Private Sub lblStatus_TextChanged(sender As Object, e As EventArgs) Handles lblStatus.TextChanged
+
+        If lblStatus.Text.Contains("NoAvailable") Then
+            lblStatus.BackColor = Color.Firebrick
+            lblStatus.ForeColor = Color.White
+        ElseIf lblStatus.Text.Contains("Available") Then
+            lblStatus.BackColor = Color.DarkGreen
+            lblStatus.ForeColor = Color.White
+        End If
     End Sub
 End Class
