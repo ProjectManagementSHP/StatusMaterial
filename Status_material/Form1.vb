@@ -78,8 +78,8 @@ Public Class Form1
             cnn.Open()
 
             Dim command As New SqlCommand(query, cnn)
-            command.Parameters.AddWithValue("@TAG", lblTAG.Text)
-            command.Parameters.AddWithValue("@PN", PN)
+            command.Parameters.AddWithValue("@TAG", lblTAG.Text.ToUpper())
+            command.Parameters.AddWithValue("@PN", PN.ToUpper())
 
             If Movement.Equals("Entrada", StringComparison.OrdinalIgnoreCase) Then
 
@@ -87,14 +87,14 @@ Public Class Form1
 
             ElseIf Movement.Equals("Salida", StringComparison.OrdinalIgnoreCase) Then
 
-                command.Parameters.AddWithValue("@CWO", textboxCWO.Text)
+                command.Parameters.AddWithValue("@CWO", textboxCWO.Text.ToUpper())
                 command.Parameters.AddWithValue("@QTY", balance)
 
             End If
 
-            command.Parameters.AddWithValue("@TYPEOFMOVEMENT", Movement)
+            command.Parameters.AddWithValue("@TYPEOFMOVEMENT", Movement.ToUpper())
             command.Parameters.AddWithValue("@EMPLOYEE", textboxUserInputMaterials.Text)
-            command.Parameters.AddWithValue("@APP", "Status material")
+            command.Parameters.AddWithValue("@APP", "Status material".ToUpper())
 
             command.ExecuteNonQuery()
 
@@ -143,7 +143,14 @@ Public Class Form1
 
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(textboxTag.Text)
+            textboxCWO.Focus()
         End If
+
+        If Not Char.IsDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) Then
+            e.Handled = True
+
+        End If
+
 
     End Sub
 
@@ -179,21 +186,15 @@ Public Class Form1
     End Sub
 
     Private Sub txttag_KeyPress(sender As Object, e As KeyPressEventArgs) Handles textboxTag.KeyPress
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(textboxTag.Text)
             textboxUserInputMaterials.Focus()
         End If
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
-
-
-
     End Sub
 
     Private Sub txttag_TextChanged(sender As Object, e As EventArgs) Handles textboxTag.TextChanged
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
-
-        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
+        textboxTag.Text = textboxTag.Text.ToUpper()
+        textboxTag.SelectionStart = textboxTag.Text.Length
     End Sub
 
     Private Sub BuscarTag(ByVal TAG As String)
@@ -359,5 +360,8 @@ Public Class Form1
         End If
     End Sub
 
-
+    Private Sub textboxCWO_TextChanged(sender As Object, e As EventArgs) Handles textboxCWO.TextChanged
+        textboxCWO.Text = textboxCWO.Text.ToUpper()
+        textboxCWO.SelectionStart = textboxCWO.Text.Length
+    End Sub
 End Class

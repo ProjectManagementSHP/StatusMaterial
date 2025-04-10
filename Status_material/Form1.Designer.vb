@@ -34,10 +34,10 @@ Partial Class Form1
         Me.textboxUserInputMaterials = New System.Windows.Forms.TextBox()
         Me.labelUser = New System.Windows.Forms.Label()
         Me.panelTOP = New System.Windows.Forms.Panel()
+        Me.pictureSHP = New System.Windows.Forms.PictureBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.labelCWO = New System.Windows.Forms.Label()
         Me.textboxCWO = New System.Windows.Forms.TextBox()
-        Me.pictureSHP = New System.Windows.Forms.PictureBox()
         Me.panelTOP.SuspendLayout()
         CType(Me.pictureSHP, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -45,9 +45,9 @@ Partial Class Form1
         'textboxTag
         '
         Me.textboxTag.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.textboxTag.Location = New System.Drawing.Point(118, 69)
+        Me.textboxTag.Location = New System.Drawing.Point(133, 69)
         Me.textboxTag.Name = "textboxTag"
-        Me.textboxTag.Size = New System.Drawing.Size(279, 36)
+        Me.textboxTag.Size = New System.Drawing.Size(302, 36)
         Me.textboxTag.TabIndex = 0
         '
         'labelTAG
@@ -55,7 +55,7 @@ Partial Class Form1
         Me.labelTAG.AutoSize = True
         Me.labelTAG.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 20.0!, System.Drawing.FontStyle.Bold)
         Me.labelTAG.ForeColor = System.Drawing.Color.FromArgb(CType(CType(40, Byte), Integer), CType(CType(44, Byte), Integer), CType(CType(52, Byte), Integer))
-        Me.labelTAG.Location = New System.Drawing.Point(56, 69)
+        Me.labelTAG.Location = New System.Drawing.Point(73, 69)
         Me.labelTAG.Name = "labelTAG"
         Me.labelTAG.Size = New System.Drawing.Size(58, 33)
         Me.labelTAG.TabIndex = 1
@@ -72,9 +72,9 @@ Partial Class Form1
         Me.btnasignar.ForeColor = System.Drawing.Color.White
         Me.btnasignar.Location = New System.Drawing.Point(55, 402)
         Me.btnasignar.Name = "btnasignar"
-        Me.btnasignar.Size = New System.Drawing.Size(100, 39)
+        Me.btnasignar.Size = New System.Drawing.Size(111, 39)
         Me.btnasignar.TabIndex = 2
-        Me.btnasignar.Text = "Asignar"
+        Me.btnasignar.Text = "ASIGNAR"
         Me.btnasignar.UseVisualStyleBackColor = False
         '
         'btnentrada
@@ -86,11 +86,11 @@ Partial Class Form1
         Me.btnentrada.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnentrada.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 16.0!, System.Drawing.FontStyle.Bold)
         Me.btnentrada.ForeColor = System.Drawing.Color.White
-        Me.btnentrada.Location = New System.Drawing.Point(292, 402)
+        Me.btnentrada.Location = New System.Drawing.Point(281, 402)
         Me.btnentrada.Name = "btnentrada"
-        Me.btnentrada.Size = New System.Drawing.Size(105, 39)
+        Me.btnentrada.Size = New System.Drawing.Size(111, 39)
         Me.btnentrada.TabIndex = 3
-        Me.btnentrada.Text = "Entrada"
+        Me.btnentrada.Text = "RECIBIR"
         Me.btnentrada.UseVisualStyleBackColor = False
         '
         'lblStatus
@@ -139,9 +139,9 @@ Partial Class Form1
         'textboxUserInputMaterials
         '
         Me.textboxUserInputMaterials.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.textboxUserInputMaterials.Location = New System.Drawing.Point(118, 110)
+        Me.textboxUserInputMaterials.Location = New System.Drawing.Point(133, 110)
         Me.textboxUserInputMaterials.Name = "textboxUserInputMaterials"
-        Me.textboxUserInputMaterials.Size = New System.Drawing.Size(279, 36)
+        Me.textboxUserInputMaterials.Size = New System.Drawing.Size(302, 36)
         Me.textboxUserInputMaterials.TabIndex = 10
         '
         'labelUser
@@ -149,7 +149,7 @@ Partial Class Form1
         Me.labelUser.AutoSize = True
         Me.labelUser.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 20.0!, System.Drawing.FontStyle.Bold)
         Me.labelUser.ForeColor = System.Drawing.Color.FromArgb(CType(CType(40, Byte), Integer), CType(CType(44, Byte), Integer), CType(CType(52, Byte), Integer))
-        Me.labelUser.Location = New System.Drawing.Point(15, 110)
+        Me.labelUser.Location = New System.Drawing.Point(32, 110)
         Me.labelUser.Name = "labelUser"
         Me.labelUser.Size = New System.Drawing.Size(99, 33)
         Me.labelUser.TabIndex = 11
@@ -165,6 +165,18 @@ Partial Class Form1
         Me.panelTOP.Name = "panelTOP"
         Me.panelTOP.Size = New System.Drawing.Size(469, 44)
         Me.panelTOP.TabIndex = 12
+        '
+        'pictureSHP
+        '
+        Me.pictureSHP.Dock = System.Windows.Forms.DockStyle.Left
+        Me.pictureSHP.Image = CType(resources.GetObject("pictureSHP.Image"), System.Drawing.Image)
+        Me.pictureSHP.InitialImage = CType(resources.GetObject("pictureSHP.InitialImage"), System.Drawing.Image)
+        Me.pictureSHP.Location = New System.Drawing.Point(0, 0)
+        Me.pictureSHP.Name = "pictureSHP"
+        Me.pictureSHP.Size = New System.Drawing.Size(100, 44)
+        Me.pictureSHP.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.pictureSHP.TabIndex = 0
+        Me.pictureSHP.TabStop = False
         '
         'Label3
         '
@@ -182,32 +194,20 @@ Partial Class Form1
         Me.labelCWO.AutoSize = True
         Me.labelCWO.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 20.0!, System.Drawing.FontStyle.Bold)
         Me.labelCWO.ForeColor = System.Drawing.Color.FromArgb(CType(CType(40, Byte), Integer), CType(CType(44, Byte), Integer), CType(CType(52, Byte), Integer))
-        Me.labelCWO.Location = New System.Drawing.Point(47, 152)
+        Me.labelCWO.Location = New System.Drawing.Point(6, 152)
         Me.labelCWO.Name = "labelCWO"
-        Me.labelCWO.Size = New System.Drawing.Size(67, 33)
+        Me.labelCWO.Size = New System.Drawing.Size(125, 33)
         Me.labelCWO.TabIndex = 14
-        Me.labelCWO.Text = "CWO:"
+        Me.labelCWO.Text = "PWO/CWO:"
         '
         'textboxCWO
         '
         Me.textboxCWO.Enabled = False
         Me.textboxCWO.Font = New System.Drawing.Font("Bahnschrift SemiBold SemiConden", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.textboxCWO.Location = New System.Drawing.Point(118, 152)
+        Me.textboxCWO.Location = New System.Drawing.Point(133, 152)
         Me.textboxCWO.Name = "textboxCWO"
-        Me.textboxCWO.Size = New System.Drawing.Size(279, 36)
+        Me.textboxCWO.Size = New System.Drawing.Size(302, 36)
         Me.textboxCWO.TabIndex = 15
-        '
-        'pictureSHP
-        '
-        Me.pictureSHP.Dock = System.Windows.Forms.DockStyle.Left
-        Me.pictureSHP.Image = CType(resources.GetObject("pictureSHP.Image"), System.Drawing.Image)
-        Me.pictureSHP.InitialImage = CType(resources.GetObject("pictureSHP.InitialImage"), System.Drawing.Image)
-        Me.pictureSHP.Location = New System.Drawing.Point(0, 0)
-        Me.pictureSHP.Name = "pictureSHP"
-        Me.pictureSHP.Size = New System.Drawing.Size(100, 44)
-        Me.pictureSHP.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.pictureSHP.TabIndex = 0
-        Me.pictureSHP.TabStop = False
         '
         'Form1
         '
