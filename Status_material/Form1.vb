@@ -47,7 +47,8 @@ Public Class Form1
 
             query = "
                     DECLARE @USER NVARCHAR(255);
-                    DECLARE @QTY INTEGER;
+                    DECLARE @QTYSCANNED DECIMAL(18,2);
+                    DECLARE @BALANCE DECIMAL(18,2);
                     SET @USER = (CASE 
                                         WHEN (SELECT COUNT(*) FROM tblEmpleados WHERE EmployeeNumber = @EMPLOYEE) > 0 
                                         THEN (SELECT ISNULL(FirstName, '') + ' ' + ISNULL(MiddleName, '') + ' ' + ISNULL(LastName, '') + ' ' + ISNULL(MaternalLastName, '')
@@ -55,20 +56,23 @@ Public Class Form1
                                         ELSE CONCAT('-', @EMPLOYEE)
                                  END);
 
-                    SET @QTY = (select COALESCE(SUM(QtyAsigned), 0) AS QtyAsigned from tblBOMWIPRelationsTagsDet WHERE TAG = @TAG AND PN = @PN AND CreatedDate >= (Select TOP(1) DATE from tblWarehouseInOut WHERE TAG = @TAG AND PN = @PN AND TypeOfMovement = 'Salida' ORDER BY DATE DESC))
-                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, @QTY, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP);"
+                    SET @QTYSCANNED = (select COALESCE(SUM(QtyAsigned), 0) AS QtyAsigned from tblBOMWIPRelationsTagsDet WHERE TAG = @TAG AND PN = @PN AND CreatedDate >= (Select TOP(1) DATE from tblWarehouseInOut WHERE TAG = @TAG AND PN = @PN AND TypeOfMovement = 'Salida' ORDER BY DATE DESC))
+                    SET @BALANCE = (select COALESCE(balance, 0) as balance from tblItemsTags where tag = @TAG and pn = @PN)
+                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, 0, @QTYSCANNED, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP);"
 
         Else Movement.Equals("Salida", StringComparison.OrdinalIgnoreCase)
 
             query = "
                     Declare @USER NVARCHAR(255);
+                    DECLARE @BALANCE DECIMAL(18,2);
                     SET @USER = (CASE 
                                         WHEN (SELECT COUNT(*) FROM tblEmpleados WHERE EmployeeNumber = @EMPLOYEE) > 0 
                                         THEN (SELECT ISNULL(FirstName, '') + ' ' + ISNULL(MiddleName, '') + ' ' + ISNULL(LastName, '') + ' ' + ISNULL(MaternalLastName, '')
                                             FROM tblEmpleados WHERE EmployeeNumber = @EMPLOYEE) 
                                         ELSE CONCAT('-', @EMPLOYEE)
                                  END);
-                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, @QTY, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP);"
+                    SET @BALANCE = (select COALESCE(balance, 0) as balance from tblItemsTags where tag = @TAG and pn = @PN)
+                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, @QTYASIGNED, 0, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP);"
 
         End If
 
@@ -88,7 +92,7 @@ Public Class Form1
             ElseIf Movement.Equals("Salida", StringComparison.OrdinalIgnoreCase) Then
 
                 command.Parameters.AddWithValue("@CWO", textboxCWO.Text.ToUpper())
-                command.Parameters.AddWithValue("@QTY", balance)
+                command.Parameters.AddWithValue("@QTYASIGNED", balance)
 
             End If
 
