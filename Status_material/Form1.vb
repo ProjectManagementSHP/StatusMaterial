@@ -116,6 +116,9 @@ Public Class Form1
     End Sub
 
 
+
+
+
     Private Function validaEmpleado(EmployeeNumber As String) As Boolean
         Dim query = "SELECT COUNT(*) AS EXISTE from tblEmpleados where EmployeeNumber = @EmployeeNumber"
         Dim exists = False
@@ -193,6 +196,10 @@ Public Class Form1
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(textboxTag.Text)
             textboxUserInputMaterials.Focus()
+        End If
+
+        If Not Char.IsLetterOrDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) Then
+            e.Handled = True
         End If
     End Sub
 
@@ -362,6 +369,11 @@ Public Class Form1
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(textboxTag.Text)
         End If
+
+        If Not Char.IsLetterOrDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) Then
+            e.Handled = True
+        End If
+
     End Sub
 
     Private Sub textboxCWO_TextChanged(sender As Object, e As EventArgs) Handles textboxCWO.TextChanged
