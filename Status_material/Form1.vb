@@ -1,4 +1,5 @@
 ﻿Imports System.Data.SqlClient
+Imports System.Text.RegularExpressions
 
 Public Class Form1
     Private strCnn As String = "Server=10.17.182.12\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
@@ -13,7 +14,7 @@ Public Class Form1
 
         balance = 0
 
-        If String.IsNullOrWhiteSpace(textboxUserInputMaterials.Text) Or String.IsNullOrWhiteSpace(textboxTag.Text) Or String.IsNullOrWhiteSpace(textboxCWO.Text) Then
+        If String.IsNullOrWhiteSpace(textboxUserInputMaterials.Text) Or String.IsNullOrWhiteSpace(textboxTag.Text) Or String.IsNullOrWhiteSpace(textboxCWO.Text) Or comboboxArea.SelectedIndex = -1 Then
 
             MessageBox.Show("Llena todos los campos para continuar.", "Material Status", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             textboxUserInputMaterials.Focus()
@@ -23,6 +24,18 @@ Public Class Form1
 
             MessageBox.Show("El número de empleado no es válido.", "Material Status", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             textboxUserInputMaterials.Focus()
+            Exit Sub
+
+        ElseIf Not textboxCWO.Text.StartsWith("CWO", StringComparison.OrdinalIgnoreCase) And Not textboxCWO.Text.StartsWith("PWO", StringComparison.OrdinalIgnoreCase) And Not textboxCWO.Text.StartsWith("WAA", StringComparison.OrdinalIgnoreCase) Then
+
+            MessageBox.Show("El CWO, PWO o WIP ingresado no es válido.", "Material Status", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            comboboxArea.Focus()
+            Exit Sub
+
+        ElseIf Not validateExistencePwoCwoWip(textboxCWO.Text) Then
+
+            MessageBox.Show("El CWO, PWO o WIP ingresado no es existe.", "Material Status", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            comboboxArea.Focus()
             Exit Sub
 
         Else
@@ -37,6 +50,28 @@ Public Class Form1
         textboxCWO.Enabled = False
 
     End Sub
+
+
+    Private Function validateExistencePwoCwoWip(VALUE As String) As Boolean
+
+        Dim query = "SELECT TOP(1)WIP AS VALUE FROM TBLWIPDET WHERE WIP = @VALUE OR CWO = @VALUE
+                     UNION
+                     SELECT TOP(1)PWO AS VALUE FROM TBLPWO WHERE PWO = @VALUE"
+
+        Try
+            cnn.Open()
+            Dim command As New SqlCommand(query, cnn)
+            command.Parameters.AddWithValue("@VALUE", VALUE)
+            Dim result = command.ExecuteScalar()
+            cnn.Close()
+            Return result IsNot Nothing
+        Catch ex As Exception
+            cnn.Close()
+            Return False
+        End Try
+
+
+    End Function
 
 
     Private Sub RecordMovement(Movement As String)
@@ -58,7 +93,7 @@ Public Class Form1
 
                     SET @QTYSCANNED = (select COALESCE(SUM(QtyAsigned), 0) AS QtyAsigned from tblBOMWIPRelationsTagsDet WHERE TAG = @TAG AND PN = @PN AND CreatedDate >= (Select TOP(1) DATE from tblWarehouseInOut WHERE TAG = @TAG AND PN = @PN AND TypeOfMovement = 'Salida' ORDER BY DATE DESC))
                     SET @BALANCE = (select COALESCE(balance, 0) as balance from tblItemsTags where tag = @TAG and pn = @PN)
-                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, 0, @QTYSCANNED, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP);"
+                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, 0, @QTYSCANNED, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP, '');"
 
         Else Movement.Equals("Salida", StringComparison.OrdinalIgnoreCase)
 
@@ -72,7 +107,7 @@ Public Class Form1
                                         ELSE CONCAT('-', @EMPLOYEE)
                                  END);
                     SET @BALANCE = (select COALESCE(balance, 0) as balance from tblItemsTags where tag = @TAG and pn = @PN)
-                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, @QTYASIGNED, 0, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP);"
+                    INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, @QTYASIGNED, 0, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP, @AREA);"
 
         End If
 
@@ -91,8 +126,9 @@ Public Class Form1
 
             ElseIf Movement.Equals("Salida", StringComparison.OrdinalIgnoreCase) Then
 
-                command.Parameters.AddWithValue("@CWO", textboxCWO.Text.ToUpper())
+                command.Parameters.AddWithValue("@CWO", clearString(textboxCWO.Text))
                 command.Parameters.AddWithValue("@QTYASIGNED", balance)
+                command.Parameters.AddWithValue("@AREA", comboboxArea.SelectedItem.ToString())
 
             End If
 
@@ -114,6 +150,12 @@ Public Class Form1
         cnn.Close()
 
     End Sub
+
+
+    Private Function clearString(value As String) As String
+        value = Regex.Replace(value, "[^a-zA-Z0-9\-]", "").ToUpper()
+        Return value
+    End Function
 
 
 
@@ -150,7 +192,7 @@ Public Class Form1
 
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(textboxTag.Text)
-            textboxCWO.Focus()
+            comboboxArea.Focus()
         End If
 
         If Not Char.IsDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) Then
@@ -228,7 +270,7 @@ Public Class Form1
                     lblStatus.Text = TN.Rows(0).Item("Status").ToString
                     lblPN.Text = "PN: " + TN.Rows(0).Item("PN").ToString
                     PN = TN.Rows(0).Item("PN").ToString
-                    lblBalance.Text = "Balance: " + CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1)) + "   " + TN.Rows(0).Item("Unit").ToString
+                    lblBalance.Text = "BALANCE: " + CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1)) + "   " + TN.Rows(0).Item("Unit").ToString
                     balance = CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1))
                     If TN.Rows(0).Item("Status").ToString = "Available" And textboxUserInputMaterials.Text <> "" Then
                         btnasignar.Enabled = True
@@ -301,6 +343,7 @@ Public Class Form1
             textboxTag.Text = ""
             textboxUserInputMaterials.Text = ""
             textboxCWO.Text = ""
+            comboboxArea.SelectedIndex = -1
             btnasignar.Enabled = False
             btnentrada.Enabled = False
 
@@ -370,7 +413,7 @@ Public Class Form1
             BuscarTag(textboxTag.Text)
         End If
 
-        If Not Char.IsLetterOrDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) Then
+        If Not Char.IsLetterOrDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) AndAlso e.KeyChar <> "-"c Then
             e.Handled = True
         End If
 
