@@ -409,8 +409,13 @@ Public Class Form1
     End Sub
 
     Private Sub textboxCWO_KeyPress(sender As Object, e As KeyPressEventArgs) Handles textboxCWO.KeyPress
+
         If Asc(e.KeyChar) = 13 Then
             BuscarTag(textboxTag.Text)
+        End If
+
+        If e.KeyChar = "'"c Then
+            textboxCWO.Text = textboxCWO.Text + "-"
         End If
 
         If Not Char.IsLetterOrDigit(e.KeyChar) AndAlso Not Char.IsControl(e.KeyChar) AndAlso e.KeyChar <> "-"c Then
