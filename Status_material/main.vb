@@ -1,7 +1,7 @@
 ﻿Imports System.Data.SqlClient
 Imports System.Text.RegularExpressions
 
-Public Class Form1
+Public Class materialStatus
     Private strCnn As String = "Server=10.17.182.12\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
     'Private strCnn As String = "Server=10.17.182.36\SQLEXPRESS2012;Database=SEA;User ID=sa;Password=SHPadmin14%"
     'Private strCnn As String = "Server=SHPLAPSIS01\SQLEXPRESS2012; Database=SEA; User ID=sa;Password=SHPadmin14%"

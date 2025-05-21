@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
-Partial Class Form1
+Partial Class materialStatus
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -22,7 +22,7 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(materialStatus))
         Me.textboxTag = New System.Windows.Forms.TextBox()
         Me.labelTAG = New System.Windows.Forms.Label()
         Me.btnasignar = New System.Windows.Forms.Button()
@@ -234,7 +234,7 @@ Partial Class Form1
         Me.comboboxArea.Size = New System.Drawing.Size(283, 37)
         Me.comboboxArea.TabIndex = 17
         '
-        'Form1
+        'materialStatus
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -258,7 +258,7 @@ Partial Class Form1
         Me.Controls.Add(Me.textboxTag)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MinimumSize = New System.Drawing.Size(485, 415)
-        Me.Name = "Form1"
+        Me.Name = "materialStatus"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Material Status"
         Me.panelTOP.ResumeLayout(False)

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Status_material", "Status_material\Status_material.vbproj", "{A7FA2F24-2A1A-4D27-89E0-6590E181019C}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MaterialStatus", "Status_material\MaterialStatus.vbproj", "{A7FA2F24-2A1A-4D27-89E0-6590E181019C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
