@@ -38,6 +38,12 @@ Public Class materialStatus
             comboboxArea.Focus()
             Exit Sub
 
+        ElseIf Not WOContainsPN(textboxCWO.text, lblPN.text.Replace("PN : ", "")) Then
+
+            MessageBox.Show("No es posible asignar al tag debido a que el número de parte [" & lblPN.Text.Replace("PN : ", "") & "] no pertenece al BOM de material de la WO [" & textboxCWO.Text & "]", "Material Status", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            comboboxArea.Focus()
+            Exit Sub
+
         Else
 
             UpdateTag(lblTAG.Text, "NoAvailable")
@@ -51,6 +57,42 @@ Public Class materialStatus
 
     End Sub
 
+
+    Private Function WOContainsPN(WO As String, PN As String) As Boolean
+
+        Dim query As String = "SELECT COALESCE(STRING_AGG(AU, ', '), '') AS AU FROM (
+                               SELECT DISTINCT AU FROM TBLBOMCWO WHERE CWO = @WO AND PN = @PN AND CWO <> '' AND PN <> '' UNION
+                               SELECT DISTINCT AU FROM TBLBOMWIP WHERE WIP = @WO AND PN = @PN AND WIP <> '' AND PN <> '' UNION
+                               SELECT DISTINCT AU FROM TBLBOMPWO WHERE PWO = @WO AND PN = @PN AND PWO <> '' AND PN <> '') AS AUS"
+
+        Try
+            cnn.Open()
+            Dim command As New SqlCommand(query, cnn)
+            command.Parameters.AddWithValue("@WO", WO)
+            command.Parameters.AddWithValue("@PN", PN)
+
+            Dim reader = command.ExecuteReader()
+
+            If reader.Read() Then
+
+                If Not String.IsNullOrWhiteSpace(reader("AU").ToString()) Then
+                    Console.WriteLine("AU: " & reader("AU").ToString())
+                    cnn.Close()
+                    Return True
+                Else
+                    cnn.Close()
+                    Return False
+                End If
+
+            End If
+        Catch ex As Exception
+
+            MessageBox.Show("Error al validar el número de parte en la WO: " & ex.Message, "Almacen", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+
+        End Try
+
+    End Function
 
     Private Function validateExistencePwoCwoWip(VALUE As String) As Boolean
 
@@ -99,7 +141,7 @@ Public Class materialStatus
 
             query = "
                     DECLARE @USER NVARCHAR(255);
-                    DECLARE @AU NVARCHAR(10);
+                    DECLARE @AU NVARCHAR(255);
                     DECLARE @BALANCE DECIMAL(18,2);
 
                     SET @USER = (CASE 
@@ -110,7 +152,10 @@ Public Class materialStatus
                                  END);
                     SET @BALANCE = (select COALESCE(balance, 0) as balance from tblItemsTags where tag = @TAG and pn = @PN)
 
-                    SELECT TOP(1) @AU = AU FROM TBLWIPDET WHERE CWO = @WO OR WIP = @WO OR PWOA = @WO OR PWOB = @WO
+                    SELECT @AU = COALESCE(STRING_AGG(AU, ', '), '') FROM (
+                               SELECT DISTINCT AU FROM TBLBOMCWO WHERE CWO = @WO AND PN = @PN AND CWO <> '' AND PN <> '' UNION
+                               SELECT DISTINCT AU FROM TBLBOMWIP WHERE WIP = @WO AND PN = @PN AND WIP <> '' AND PN <> '' UNION
+                               SELECT DISTINCT AU FROM TBLBOMPWO WHERE PWO = @WO AND PN = @PN AND PWO <> '' AND PN <> '') AS AUS
 
                     INSERT INTO TBLWAREHOUSEINOUT VALUES (@TAG, @PN, @CWO, @QTYASIGNED, 0, @BALANCE, @USER, @TYPEOFMOVEMENT, GETDATE(), @APP, @AREA, @AU);
 "
@@ -276,9 +321,9 @@ Public Class materialStatus
                 If TN.Rows.Count > 0 Then
                     lblTAG.Text = textboxTag.Text
                     lblStatus.Text = TN.Rows(0).Item("Status").ToString
-                    lblPN.Text = "PN: " + TN.Rows(0).Item("PN").ToString
+                    lblPN.Text = "PN : " + TN.Rows(0).Item("PN").ToString
                     PN = TN.Rows(0).Item("PN").ToString
-                    lblBalance.Text = "BALANCE: " + CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1)) + "   " + TN.Rows(0).Item("Unit").ToString
+                    lblBalance.Text = "BALANCE : " + CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1)) + "   " + TN.Rows(0).Item("Unit").ToString
                     balance = CStr(Math.Round(CDec(Val(TN.Rows(0).Item("Balance").ToString)), 1))
                     If TN.Rows(0).Item("Status").ToString = "Available" And textboxUserInputMaterials.Text <> "" Then
                         btnasignar.Enabled = True
